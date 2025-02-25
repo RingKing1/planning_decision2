@@ -17,7 +17,6 @@ void FirstRun::Straight() {
     std::cout<<"globalPath.size: "<<globalPath.cols()<<std::endl;
     std::cout<<"indexinglobalpath: "<<indexinglobalpath_<<std::endl;
     std::cout<<"gpsA_: "<<gpsA_<<std::endl;
-
     tool::cartesianToFrenet(car_, globalPath, FrentPoint_, first_run_index);
     double deltaYAW = tool::normalizeAngle(tool::d2r(car_(3)) - globalPath(3, first_run_index));
     double dl = (1 - globalPath(4, first_run_index) * FrentPoint_.d) * tan(deltaYAW);

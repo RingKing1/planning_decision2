@@ -143,28 +143,24 @@ void PlanningProcess::SendGlobalObses(std::vector<Eigen::VectorXd> &obses)
 }
 
 // gps的回调函数，生成主车的gps坐标
-void PlanningProcess::gps_callback(const std_msgs::msg::Float64MultiArray::SharedPtr msg)
-{
+void PlanningProcess::gps_callback(const std_msgs::msg::Float64MultiArray::SharedPtr msg) {
     // 打印一下msg->data的维度
-    // std::cout << "gps data size: " << msg->data.size() << std::endl;
-
+    //std::cout << "gps data size: " << msg->data.size() << std::endl;
     // 判断msg->data 是否是空的
-    if (msg->data.empty())
-    {
-        // RCLCPP_INFO(this->get_logger(), "gps data is empty");
-        car_.resize(1, 1);
-    }
-    // 生成主车的gps坐标
-    else
-    {
-        gpsx_ = msg->data[0];
+    if(msg->data.size()!=0){
+        // // GPS Data
+        gpsx_ = msg->data[0]; 
         gpsy_ = msg->data[1];
         gpsD_ = msg->data[2];
         gpsS_ = msg->data[3];
-        gpsA_ = msg->data[4];
-        car_.resize(5, 1);
+        //double x_a = msg->data[6];
+        double y_a = msg->data[7];
+        gpsA_ = y_a;
+        car_.resize(5,1);
         tool::getCarPosition(gpsx_, gpsy_, gpsD_, gpsS_, car_);
+        //car_(5) = gpsA;
     }
+    else{car_.resize(1,1);}//没有接受到北斗的消息 
 }
 
 // 全局路径的回调函数，获取全局路径
@@ -381,6 +377,7 @@ bool PlanningProcess::get_local_path()
     RCLCPP_INFO(this->get_logger(), "Current scenario state: %d", static_cast<int>(state_));
     // 输出car_变量
     indexinglobalpath = scenario_manager_->GetIndex();
+    //std::cout<<"indexinglobalpath: "<<indexinglobalpath<<std::endl;
     // 根据senum class ScenarioState
     // {
     //     INIT,     // 第一次执行，初始化状态

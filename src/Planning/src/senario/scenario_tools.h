@@ -9,8 +9,12 @@
 namespace senarioTools{
     constexpr double vehicle_length_ = 5.136;
     constexpr double vehicle_width_ = 2.016;
+
+    void findClosestPointInLocalPath (const double &x, const double &y, const Eigen::MatrixXd &path, int &carIndex); 
+    void cartofrenetInLocalPath(const Eigen::VectorXd &CAR, const Eigen::MatrixXd &path, int &carIndex, frentPoint &carFrent);
     void findClosestPoint(const double& x, const double& y,const Eigen::MatrixXd& path, int& carIndex);
     void cartofrenet(const Eigen::VectorXd& CAR, const Eigen::MatrixXd& path, int& carIndex, frentPoint &carFrent);
+    
     std::pair<bool, double> Pathplanningduringdeceleration(Eigen::MatrixXd& path, std::vector<Eigen::VectorXd> &GlobalcoordinatesystemObsesLimitinlocal_);
     void getclose_s(Eigen::MatrixXd &path, std::vector<Eigen::VectorXd> &obses, double &min_s, bool &ischeck);
     std::pair<double, double> ComputePositionProjection(
