@@ -3,15 +3,17 @@ namespace senarioTools
 {
     /******************功能函数**************************/
 
-    void findClosestPointInLocalPath (const double &x, const double &y, const Eigen::MatrixXd &path, int &carIndex) {
+    void findClosestPointInLocalPath(const double &x, const double &y, const Eigen::MatrixXd &path, int &carIndex)
+    {
         int startIndex = 0;
         int endIndex = static_cast<int>(path.cols());
         double distance, d_min = std::numeric_limits<double>::max();
         double dx, dy;
-        for (int i = startIndex; i < endIndex; ++i) {
+        for (int i = startIndex; i < endIndex; ++i)
+        {
             dx = path(0, i) - x;
             dy = path(1, i) - y;
-            distance = dx * dx + dy * dy ;
+            distance = dx * dx + dy * dy;
             if (distance < d_min)
             {
                 carIndex = i;
@@ -20,10 +22,11 @@ namespace senarioTools
         }
     }
 
-    void cartofrenetInLocalPath(const Eigen::VectorXd &CAR, const Eigen::MatrixXd &path, int &carIndex, frentPoint &carFrent) {
+    void cartofrenetInLocalPath(const Eigen::VectorXd &CAR, const Eigen::MatrixXd &path, int &carIndex, frentPoint &carFrent)
+    {
         const double dx = CAR(0) - path(0, carIndex);
         const double dy = CAR(1) - path(1, carIndex);
-        const double theta = path(3, carIndex);       
+        const double theta = path(3, carIndex);
         const double cos_theta = std::cos(theta);
         const double sin_theta = std::sin(theta);
         double ref_s = path(5, carIndex);
@@ -33,19 +36,45 @@ namespace senarioTools
         carFrent.s = std::abs(path_s);
     }
 
-    void findClosestPoint(const double &x, const double &y, const Eigen::MatrixXd &path, int &carIndex) {
-        int startIndex = 0;
-        int endIndex = static_cast<int>(path.cols());
-        double distance, d_min = std::numeric_limits<double>::max();
-        double dx, dy;
-        for (int i = startIndex; i < endIndex; ++i) {
-            dx = path(0, i) - x;
-            dy = path(1, i) - y;
-            distance = dx * dx + dy * dy ;
-            if (distance < d_min)
+    void findClosestPoint(const double &x, const double &y, const Eigen::MatrixXd &path, int &carIndex,const bool &first_run)
+    {
+        if (first_run)
+        {
+            int startIndex = 0;
+            int endIndex = static_cast<int>(path.cols());
+            double distance, d_min = std::numeric_limits<double>::max();
+            double dx, dy;
+            for (int i = startIndex; i < endIndex; ++i)
             {
-                carIndex = i;
-                d_min = distance;
+                dx = path(0, i) - x;
+                dy = path(1, i) - y;
+                distance = dx * dx + dy * dy;
+                if (distance < d_min)
+                {
+                    carIndex = i;
+                    d_min = distance;
+                }
+            }
+        }
+        else
+        {
+            // startIndex 为carIndex-10和0的最小值
+            // endIndex 为carIndex+120和path.cols()的最小值
+            // 这样可以保证在路径的范围内
+            int startIndex = std::max(carIndex - 10, 0);
+            int endIndex = std::min(carIndex + 120, static_cast<int>(path.cols()));
+            double distance, d_min = std::numeric_limits<double>::max();
+            double dx, dy;
+            for (int i = startIndex; i < endIndex; ++i)
+            {
+                dx = path(0, i) - x;
+                dy = path(1, i) - y;
+                distance = dx * dx + dy * dy;
+                if (distance < d_min)
+                {
+                    carIndex = i;
+                    d_min = distance;
+                }
             }
         }
     }
@@ -208,7 +237,7 @@ namespace senarioTools
         auto lat_diff = frenet_sd.second;                                                                          // 横向误差
         // 此处是应对转弯时误差较大 车辆乱打方向
         constexpr double FLAGS_replan_lateral_distance_threshold = 0.5;
-        std::cout<<"lat_diff: "<<lat_diff<<std::endl;
+        std::cout << "lat_diff: " << lat_diff << std::endl;
         if (std::abs(lat_diff) > FLAGS_replan_lateral_distance_threshold)
         {
             std::array<double, 6> vehicle_start_point =
@@ -225,7 +254,8 @@ namespace senarioTools
         double y = localpath(1, prev_matched_index);
         double dx;
         double dy;
-        for (int i = startIndex; i < endIndex; ++i) {
+        for (int i = startIndex; i < endIndex; ++i)
+        {
             dx = globalPath(0, i) - x;
             dy = globalPath(1, i) - y;
             distance = dx * dx + dy * dy;
@@ -281,9 +311,9 @@ namespace senarioTools
         }
         for (auto &obs : obses_limit_SD)
         {
-        // 左侧空隙为obs.point1.l, obs.point2.l减去rightMin中较小的值
-        // 右侧空隙为leftMax减去obs.point3.l, obs.point4.l中较小的值
-            double leftSpace = std::min(obs.point1.l-rightMin, obs.point2.l - rightMin);
+            // 左侧空隙为obs.point1.l, obs.point2.l减去rightMin中较小的值
+            // 右侧空隙为leftMax减去obs.point3.l, obs.point4.l中较小的值
+            double leftSpace = std::min(obs.point1.l - rightMin, obs.point2.l - rightMin);
             double rightSpace = std::min(rightMax - obs.point3.l, rightMax - obs.point4.l);
             // 如果左侧空隙和右侧空隙都小于车辆宽度，则返回 true
             if (leftSpace < car_wigth && rightSpace < car_wigth)

@@ -143,24 +143,29 @@ void PlanningProcess::SendGlobalObses(std::vector<Eigen::VectorXd> &obses)
 }
 
 // gps的回调函数，生成主车的gps坐标
-void PlanningProcess::gps_callback(const std_msgs::msg::Float64MultiArray::SharedPtr msg) {
+void PlanningProcess::gps_callback(const std_msgs::msg::Float64MultiArray::SharedPtr msg)
+{
     // 打印一下msg->data的维度
-    //std::cout << "gps data size: " << msg->data.size() << std::endl;
+    // std::cout << "gps data size: " << msg->data.size() << std::endl;
     // 判断msg->data 是否是空的
-    if(msg->data.size()!=0){
+    if (msg->data.size() != 0)
+    {
         // // GPS Data
-        gpsx_ = msg->data[0]; 
+        gpsx_ = msg->data[0];
         gpsy_ = msg->data[1];
         gpsD_ = msg->data[2];
         gpsS_ = msg->data[3];
-        //double x_a = msg->data[6];
-        double y_a = msg->data[7];
+        // double x_a = msg->data[6];
+        double y_a = msg->data[4];
         gpsA_ = y_a;
-        car_.resize(5,1);
+        car_.resize(5, 1);
         tool::getCarPosition(gpsx_, gpsy_, gpsD_, gpsS_, car_);
-        //car_(5) = gpsA;
+        // car_(5) = gpsA;
     }
-    else{car_.resize(1,1);}//没有接受到北斗的消息 
+    else
+    {
+        car_.resize(1, 1);
+    } // 没有接受到北斗的消息
 }
 
 // 全局路径的回调函数，获取全局路径
@@ -377,15 +382,15 @@ bool PlanningProcess::get_local_path()
     RCLCPP_INFO(this->get_logger(), "Current scenario state: %d", static_cast<int>(state_));
     // 输出car_变量
     indexinglobalpath = scenario_manager_->GetIndex();
-    //std::cout<<"indexinglobalpath: "<<indexinglobalpath<<std::endl;
-    // 根据senum class ScenarioState
-    // {
-    //     INIT,     // 第一次执行，初始化状态
-    //     STRAIGHT, // 直行状态
-    //     TURN,     // 转弯状态
-    //     NEAR_STOP // 到达停止线附近
-    // };
-    // tate_状态执行不同的函数
+    RCLCPP_INFO(this->get_logger(), "indexinglobalpath: %d", indexinglobalpath);
+    //  根据senum class ScenarioState
+    //  {
+    //      INIT,     // 第一次执行，初始化状态
+    //      STRAIGHT, // 直行状态
+    //      TURN,     // 转弯状态
+    //      NEAR_STOP // 到达停止线附近
+    //  };
+    //  tate_状态执行不同的函数
     switch (state_)
     {
     case ScenarioState::INIT:
@@ -394,13 +399,12 @@ bool PlanningProcess::get_local_path()
         if (!scenario_ || (dynamic_cast<FirstRun *>(scenario_.get()) == nullptr))
         {
             scenario_ = std::make_unique<FirstRun>(car_, globalPath, obses_limit_SD, GlobalcoordinatesystemObsesLimit, gpsA_, indexinglobalpath);
-
         }
         else
         {
             scenario_->Updated(car_, obses_limit_SD, GlobalcoordinatesystemObsesLimit, gpsA_, indexinglobalpath);
-        }  
-            // 进行决策
+        }
+        // 进行决策
         scenario_->MakeDecision();
         // 规划路径
         bool isFirstRunSuccessful = scenario_->Process();

@@ -12,6 +12,7 @@
 /install/
 /log/
 /output_txt/
+/local_path/
 /*.txt
 CMakeFiles/
 CMakeCache.txt

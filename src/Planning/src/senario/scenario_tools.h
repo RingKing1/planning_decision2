@@ -12,7 +12,7 @@ namespace senarioTools{
 
     void findClosestPointInLocalPath (const double &x, const double &y, const Eigen::MatrixXd &path, int &carIndex); 
     void cartofrenetInLocalPath(const Eigen::VectorXd &CAR, const Eigen::MatrixXd &path, int &carIndex, frentPoint &carFrent);
-    void findClosestPoint(const double& x, const double& y,const Eigen::MatrixXd& path, int& carIndex);
+    void findClosestPoint(const double& x, const double& y,const Eigen::MatrixXd& path, int& carIndex, const bool& first_run);
     void cartofrenet(const Eigen::VectorXd& CAR, const Eigen::MatrixXd& path, int& carIndex, frentPoint &carFrent);
     
     std::pair<bool, double> Pathplanningduringdeceleration(Eigen::MatrixXd& path, std::vector<Eigen::VectorXd> &GlobalcoordinatesystemObsesLimitinlocal_);
