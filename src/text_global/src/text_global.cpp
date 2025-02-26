@@ -29,3 +29,4 @@ bool TextGlobal::process()
     local_path_publisher_->publish(msg);
     return true;
 }
+#include "text_global.h"
