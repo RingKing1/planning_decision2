@@ -10,7 +10,7 @@ bool TextGlobal::process()
 {
     std_msgs::msg::Float64MultiArray msg;
     // 读取outputxyglobal.txt 文件，文件目录为/home/ring/planning_decision2/outputxyglobal.txt
-    std::ifstream file("/home/ring/planning_decision2/outputxyglobal.txt");
+    std::ifstream file("/home/mm/BUS/bus2025.2.24/planning_decision2-dev/outputxyglobal.txt");
     if (!file.is_open())
     {
         RCLCPP_ERROR(this->get_logger(), "Failed to open file");
@@ -29,3 +29,4 @@ bool TextGlobal::process()
     local_path_publisher_->publish(msg);
     return true;
 }
+#include "text_global.h"

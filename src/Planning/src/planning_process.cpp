@@ -27,6 +27,7 @@ PlanningProcess::PlanningProcess()
 
     // 发布局部路径到hmi
     local_to_hmi_publisher_ = this->create_publisher<std_msgs::msg::Float64MultiArray>("local_publisher", 10);
+     
     // 发布路径到控制节点
     local_to_control_publisher_ = this->create_publisher<std_msgs::msg::Float64MultiArray>("local_to_control", 10);
 
@@ -143,29 +144,24 @@ void PlanningProcess::SendGlobalObses(std::vector<Eigen::VectorXd> &obses)
 }
 
 // gps的回调函数，生成主车的gps坐标
-void PlanningProcess::gps_callback(const std_msgs::msg::Float64MultiArray::SharedPtr msg)
-{
+void PlanningProcess::gps_callback(const std_msgs::msg::Float64MultiArray::SharedPtr msg) {
     // 打印一下msg->data的维度
-    // std::cout << "gps data size: " << msg->data.size() << std::endl;
+    //std::cout << "gps data size: " << msg->data.size() << std::endl;
     // 判断msg->data 是否是空的
-    if (msg->data.size() != 0)
-    {
+    if(msg->data.size()!=0){
         // // GPS Data
-        gpsx_ = msg->data[0];
+        gpsx_ = msg->data[0]; 
         gpsy_ = msg->data[1];
         gpsD_ = msg->data[2];
         gpsS_ = msg->data[3];
-        // double x_a = msg->data[6];
-        double y_a = msg->data[4];
+        //double x_a = msg->data[6];
+        double y_a = msg->data[7];
         gpsA_ = y_a;
-        car_.resize(5, 1);
+        car_.resize(5,1);
         tool::getCarPosition(gpsx_, gpsy_, gpsD_, gpsS_, car_);
-        // car_(5) = gpsA;
+        //car_(5) = gpsA;
     }
-    else
-    {
-        car_.resize(1, 1);
-    } // 没有接受到北斗的消息
+    else{car_.resize(1,1);}//没有接受到北斗的消息 
 }
 
 // 全局路径的回调函数，获取全局路径
@@ -219,7 +215,7 @@ void PlanningProcess::lidar_callback(const std_msgs::msg::Float64MultiArray::Sha
         else
         {
             T_obs_lidar.resize(obs_lidar_.rows(), obs_lidar_.cols()); // 将雷达生成的障碍物膨胀，防止碰撞
-            double Expansiondistance = 0.2;                           // 10cm *2 一共是二十厘米
+            double Expansiondistance = 0.2;                                    // 10cm *2 一共是二十厘米
             // 对第0、1行统一减去 Expansiondistance
             obs_lidar_.block(0, 0, 2, obs_lidar_.cols()).array() -= Expansiondistance;
             // 对第2、3行统一加上 Expansiondistance
@@ -274,22 +270,17 @@ void PlanningProcess::speed_gears_callback(const std_msgs::msg::Int64MultiArray:
 {
 }
 
-// 发布局部路径信息
-void PlanningProcess::publish_localpath(Eigen::MatrixXd &localpath)
-{
+// 发布局部路径信息 
+void PlanningProcess::publish_localpath(Eigen::MatrixXd & localpath) {
     /***********Only To Control Node*************/
     std_msgs::msg::Float64MultiArray local_trajs_msg;
-    // 检查矩阵optTrajxy是否所有元素都等于零。如果所有元素都等于零，整个表达式将返回true；否则返回false
-    if ((localpath.array() != 0.0).any() == 0)
-    {
+    //检查矩阵optTrajxy是否所有元素都等于零。如果所有元素都等于零，整个表达式将返回true；否则返回false
+    if((localpath.array() != 0.0).any() == 0 ){
         local_trajs_msg.data.push_back(-1);
         local_to_control_publisher_->publish(local_trajs_msg);
         local_to_hmi_publisher_->publish(local_trajs_msg);
-    }
-    else
-    {
-        for (size_t i = 0; i < localpath.cols(); ++i)
-        {
+    } else {          
+        for (size_t i = 0; i < localpath.cols(); ++i){
             localpath(8, i) = localpath(7, i) + heading_time_ + 0.1;
         }
         write_localpath(localpath);
@@ -298,39 +289,35 @@ void PlanningProcess::publish_localpath(Eigen::MatrixXd &localpath)
         local_trajs_msg.data.push_back(globalPath.cols());
         local_trajs_msg.data.push_back(heading_time_);
         local_to_control_publisher_->publish(local_trajs_msg);
-        // hmi 发送
-        std_msgs::msg::Float64MultiArray local_trajs_msg2;
+        //hmi 发送 
+        std_msgs::msg::Float64MultiArray local_trajs_msg2;  
         std::vector<double> localTrajReshape2(&localpath(0), localpath.data() + localpath.size());
         local_trajs_msg2.data = localTrajReshape2;
-        local_to_hmi_publisher_->publish(local_trajs_msg2);
+        local_to_hmi_publisher_->publish(local_trajs_msg2);                 
     }
 }
 
-void PlanningProcess::write_localpath(Eigen::MatrixXd &path)
-{
-    // 获取当前路径
+void PlanningProcess::write_localpath (Eigen::MatrixXd &path) {
+                // 获取当前路径
     char buffer[256];
     // 获取当前路径
-    if (getcwd(buffer, sizeof(buffer)) != nullptr)
-    {
+    if (getcwd(buffer, sizeof(buffer)) != nullptr) {
         std::cout << "当前路径是: " << buffer << std::endl;
-    }
-    else
-    {
+    } else {
         std::cerr << "获取当前路径失败" << std::endl;
     }
-    // 获取当前时间点
+        // 获取当前时间点
     auto now = std::chrono::system_clock::now();
     std::time_t now_time_t = std::chrono::system_clock::to_time_t(now);
-    std::tm *tm_info = std::localtime(&now_time_t);
+    std::tm* tm_info = std::localtime(&now_time_t);
 
     // 格式化时间为字符串，格式为 yyyy-mm-dd_HH-MM-SS
     char time_buffer[256];
     std::strftime(time_buffer, sizeof(time_buffer), "%Y-%m-%d_%H-%M-%S", tm_info);
     // 检查local_path文件夹是否存在，如果不存在则创建
-
+    
     std::string local_path_ = std::string(buffer) + "/local_path/";
-    // 生成时间作为文件夹名称
+        // 生成时间作为文件夹名称
     std::string folder_name = local_path_ + std::string(time_buffer);
     static int loopCount = 1;
     std::string fileName = folder_name + std::to_string(loopCount) + ".txt";
@@ -382,15 +369,15 @@ bool PlanningProcess::get_local_path()
     RCLCPP_INFO(this->get_logger(), "Current scenario state: %d", static_cast<int>(state_));
     // 输出car_变量
     indexinglobalpath = scenario_manager_->GetIndex();
-    RCLCPP_INFO(this->get_logger(), "indexinglobalpath: %d", indexinglobalpath);
-    //  根据senum class ScenarioState
-    //  {
-    //      INIT,     // 第一次执行，初始化状态
-    //      STRAIGHT, // 直行状态
-    //      TURN,     // 转弯状态
-    //      NEAR_STOP // 到达停止线附近
-    //  };
-    //  tate_状态执行不同的函数
+    //std::cout<<"indexinglobalpath: "<<indexinglobalpath<<std::endl;
+    // 根据senum class ScenarioState
+    // {
+    //     INIT,     // 第一次执行，初始化状态
+    //     STRAIGHT, // 直行状态
+    //     TURN,     // 转弯状态
+    //     NEAR_STOP // 到达停止线附近
+    // };
+    // tate_状态执行不同的函数
     switch (state_)
     {
     case ScenarioState::INIT:

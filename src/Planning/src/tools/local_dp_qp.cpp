@@ -213,6 +213,7 @@ int local_dp_qp::FinalPath(Eigen::MatrixXd &optTrajxy, std::vector<Eigen::Vector
  
   // 生成min_cost_path
   if (frenet_path.size()!=0){frenet_path.clear();}
+
   frenet_path.reserve((min_path.size()-1)*(SIZE_+1));
   Eigen::Vector4d frenet_frame_point;
   for (size_t i = 1; i < min_path.size(); ++i){

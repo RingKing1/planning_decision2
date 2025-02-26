@@ -114,7 +114,7 @@ kill_ros2_processes() {
         echo "Killing planning_main_node process with PID $pidlocal"
         kill -15 $pidlocal
     else
-        echo "local_node4 process not found."
+        echo "planning_main_node process not found."
     fi
 
 
