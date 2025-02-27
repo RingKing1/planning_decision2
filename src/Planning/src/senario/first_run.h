@@ -10,7 +10,7 @@ public:
     FirstRun(const Eigen::VectorXd &car, const Eigen::MatrixXd &globalPath,
              const std::vector<obses_sd> &obses_limit_SD,
              const std::vector<Eigen::VectorXd> &GlobalcoordinatesystemObsesLimit,
-             const double &gpsA, const double indexinglobalpath);
+             const double &gpsA, const int indexinglobalpath);
     // 只需要考虑直行
     void Straight();
 
@@ -18,10 +18,5 @@ public:
     bool Process() override;
 
 private:
-    double delta_l;
-    double target_v;
-    double start_l;
-    double end_l;
-    double heading_time_;
-    double ddl;
+   
 };

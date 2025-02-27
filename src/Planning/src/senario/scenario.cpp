@@ -7,12 +7,12 @@ Scenario::Scenario(const Eigen::VectorXd &car,
                    const Eigen::MatrixXd &globalPath,
                    const std::vector<obses_sd> &obses_limit_SD,
                    const std::vector<Eigen::VectorXd> &GlobalcoordinatesystemObsesLimit,
-                   const double &gpsA, const double indexinglobalpath) : car_(car),
-                                                                         globalPath(globalPath),
-                                                                         obses_limit_SD(obses_limit_SD),
-                                                                         GlobalcoordinatesystemObsesLimit(GlobalcoordinatesystemObsesLimit),
-                                                                         gpsA_(gpsA),
-                                                                         indexinglobalpath_(indexinglobalpath)
+                   const double &gpsA, const int indexinglobalpath) : car_(car),
+                   globalPath(globalPath),
+                   obses_limit_SD(obses_limit_SD),
+                   GlobalcoordinatesystemObsesLimit(GlobalcoordinatesystemObsesLimit),
+                   gpsA_(gpsA),
+                   indexinglobalpath_(indexinglobalpath)
 {
 }
 
@@ -87,3 +87,21 @@ void Scenario::CheckPathReplan()
         REPALN = true;
     }
 }
+void Scenario::setPlanningParam( double start_l_, double end_l_, double target_l_, double delta_l_, double target_v_) {
+    start_l   = start_l_;
+    end_l   = end_l_;
+    target_l  = target_l_;
+    delta_l   = delta_l_;
+    target_v = target_v_;
+}
+
+void Scenario::setStartPointParam(double start_s_, double start_l_, double start_dl_, double start_ddl_,
+                             double start_speed_, double start_acc_) {
+    local_start_s = start_s_;
+    local_start_l = start_l_;
+    dl            = start_dl_;
+    ddl           = start_ddl_;
+    speed         = start_speed_;
+    gpsA_         = start_acc_;
+}
+

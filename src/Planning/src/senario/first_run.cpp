@@ -4,7 +4,7 @@
 FirstRun::FirstRun(const Eigen::VectorXd &car, const Eigen::MatrixXd &globalPath,
                    const std::vector<obses_sd> &obses_limit_SD,
                    const std::vector<Eigen::VectorXd> &GlobalcoordinatesystemObsesLimit,
-                   const double &gpsA, const double indexinglobalpath)
+                   const double &gpsA, const int indexinglobalpath)
     : Scenario(car, globalPath, obses_limit_SD, GlobalcoordinatesystemObsesLimit, gpsA, indexinglobalpath)
 {
 }
@@ -25,7 +25,7 @@ void FirstRun::Straight() {
     // 第一次运行时，只考虑直行  不考虑避障操作
     senarioTools::cartofrenet(car_, globalPath, indexinglobalpath_, FrentPoint_);
     // CalStartCarD(FrentPoint_.d, -1.5, start_l, end_l);
-    delta_l = 0.5; target_v = 10; start_l = -1.5; end_l = -1.5;
+    setPlanningParam(-1.5, -1.5, -1.5, 0.5, 10);
     LOCAL_.setPatam(gpsA_, car_(2), FrentPoint_.s, FrentPoint_.d, dl, ddl, globalPath, 30, 10, indexinglobalpath_, obses_limit_SD, GlobalcoordinatesystemObsesLimit,
                     start_l, end_l, delta_l, target_v, -1.5, Decisionflags_, 0, true, false, 0, 0); // 最后一位时最近障碍物的位置
     find_local_path_ = LOCAL_.GetoptTrajxy(lastOptTrajxy, lastOptTrajsd);

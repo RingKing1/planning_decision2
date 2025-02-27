@@ -8,11 +8,11 @@ public:
     NearStop(const Eigen::VectorXd &car, const Eigen::MatrixXd &globalPath,
              const std::vector<obses_sd> &obses_limit_SD,
              const std::vector<Eigen::VectorXd> &GlobalcoordinatesystemObsesLimit,
-             const double &gpsA, const double indexinglobalpath);
+             const double &gpsA, const int indexinglobalpath);
     void Straight();
     void AvoidObstacle();
     void Overtake();
-    void DecelerateFollow();
+    bool DecelerateFollow();
     void ReturnRightLane();
     void MakeDecision() override;
     bool Process() override;
