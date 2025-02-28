@@ -37,8 +37,7 @@ bool LaneFollowScenario::Straight() {
 }
 
 // 避障
-bool LaneFollowScenario::AvoidObstacle()
-{
+bool LaneFollowScenario::AvoidObstacle() {
     setPlanningParam(-0.5, -2, -1.5, 0.5, 10);
     frentPoint FrentPoint_;
     int car_index_localpath;
@@ -60,8 +59,27 @@ bool LaneFollowScenario::AvoidObstacle()
     }
     return find_local_path_;
 }
-void LaneFollowScenario::Overtake()
-{
+void LaneFollowScenario::Overtake() {
+    setPlanningParam(1.5, 1.0, 1.5, 0.5, 15);
+    frentPoint FrentPoint_;
+    int car_index_localpath;
+    senarioTools::findClosestPointInLocalPath(car_(0), car_(1),optTrajxy, car_index_localpath);
+    senarioTools::cartofrenet(car_, globalPath, indexinglobalpath_, FrentPoint_);
+    Eigen::VectorXd vehicle_state_(6);
+    vehicle_state_ << car_(0), car_(1), car_(2), car_(3), car_(4), gpsA_;
+    std::array<double, 6> vehicle_state = senarioTools::Decidestartsl(FrentPoint_, car_index_localpath, indexinglobalpath_,
+                                                                      optTrajxy, globalPath, vehicle_state_, optTrajsd);
+    setStartPointParam(vehicle_state[0], vehicle_state[1], vehicle_state[2],
+                       vehicle_state[3], vehicle_state[4], vehicle_state[5]);
+    RestFlags(false, false, false, true, false);
+    LOCAL_.setPatam(gpsA_, speed, FrentPoint_.s, FrentPoint_.d, dl, ddl, globalPath, 30, 10, indexinglobalpath_, obses_limit_SD, GlobalcoordinatesystemObsesLimit,
+                    start_l, end_l, delta_l, target_v, target_l, Decisionflags_, 0, false, false, 0, 0);
+    find_local_path_ = LOCAL_.GetoptTrajxy(lastOptTrajxy, lastOptTrajsd);
+    if (find_local_path_)
+    {
+        UpdateLocalPath();
+    }
+    return find_local_path_;
 }
 
 // 减速停车 目前的逻辑是先获取直线行使的局部路径 然后使用获取的路径与当前的障碍物进行碰撞，
@@ -92,13 +110,11 @@ bool LaneFollowScenario::DecelerateFollow()
     // 若获取当前的行使路径
     std::pair<bool, double> CollisionAndS;
     CollisionAndS = senarioTools::Pathplanningduringdeceleration(lastOptTrajxy, GlobalcoordinatesystemObsesLimit);
-    if (!CollisionAndS.first)
-    { // 如果当前路径没有碰撞
+    if (!CollisionAndS.first) { // 如果当前路径没有碰撞
         UpdateLocalPath();
         return true;
     }
-    if (CollisionAndS.second > distance_threshold)
-    {
+    if (CollisionAndS.second > distance_threshold) {
         setPlanningParam(-1.0, -2, -1.5, 0.5, 0);
         int LengthLocalPath = CollisionAndS.second - distance_threshold; // 局部路径的长度
         RestFlags(false, false, true, false, false);                     // 设置标志符
@@ -113,13 +129,34 @@ bool LaneFollowScenario::DecelerateFollow()
     }
     else {
         /**********AEB************/
+        aeb_start_flag = true; //触发AEB
+
 
     }
 }
 
 
-void LaneFollowScenario::ReturnRightLane()
-{
+void LaneFollowScenario::ReturnRightLane() {
+    setPlanningParam(-1.0, -1.5, -1.5, 0.5, 10);
+    frentPoint FrentPoint_;
+    int car_index_localpath;
+    senarioTools::findClosestPointInLocalPath(car_(0), car_(1),optTrajxy, car_index_localpath);
+    senarioTools::cartofrenet(car_, globalPath, indexinglobalpath_, FrentPoint_);
+    Eigen::VectorXd vehicle_state_(6);
+    vehicle_state_ << car_(0), car_(1), car_(2), car_(3), car_(4), gpsA_;
+    std::array<double, 6> vehicle_state = senarioTools::Decidestartsl(FrentPoint_, car_index_localpath, indexinglobalpath_,
+                                                                      optTrajxy, globalPath, vehicle_state_, optTrajsd);
+    setStartPointParam(vehicle_state[0], vehicle_state[1], vehicle_state[2],
+                       vehicle_state[3], vehicle_state[4], vehicle_state[5]);
+    RestFlags(false, false, false, true, false);
+    LOCAL_.setPatam(gpsA_, speed, FrentPoint_.s, FrentPoint_.d, dl, ddl, globalPath, 30, 10, indexinglobalpath_, obses_limit_SD, GlobalcoordinatesystemObsesLimit,
+                    start_l, end_l, delta_l, target_v, target_l, Decisionflags_, 0, false, false, 0, 0);
+    find_local_path_ = LOCAL_.GetoptTrajxy(lastOptTrajxy, lastOptTrajsd);
+    if (find_local_path_)
+    {
+        UpdateLocalPath();
+    }
+    return find_local_path_;
 }
 
 void LaneFollowScenario::MakeDecision()

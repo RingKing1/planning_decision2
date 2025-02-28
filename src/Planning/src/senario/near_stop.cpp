@@ -24,7 +24,12 @@ void NearStop::Overtake()
 //靠近终点的减速停车 
 bool NearStop::DecelerateFollow() {
     int planninglength = globalPath(5, globalPath.cols() - 1) - globalPath(5, indexinglobalpath_);
-    int singleplanninglength = std::ceil(planninglength / 2);
+    int singleplanninglength;
+    if (planninglength < 10 ) { //距离终点很近 
+        singleplanninglength = planninglength;
+    } else {
+        singleplanninglength = std::ceil(planninglength / 2);
+    }
     setPlanningParam(-1.5, -1.5, -1.5, 0.5, 0);
     frentPoint FrentPoint_;
     int car_index_localpath;
