@@ -11,9 +11,9 @@ public:
                        const double &gpsA, const int indexinglobalpath);
     bool Straight();
     bool AvoidObstacle();
-    void Overtake();
+    bool Overtake();
     bool DecelerateFollow();
-    void ReturnRightLane();
+    bool ReturnRightLane();
 
     void MakeDecision() override;
     bool Process() override;

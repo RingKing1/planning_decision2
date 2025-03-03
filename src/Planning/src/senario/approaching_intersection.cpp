@@ -9,11 +9,12 @@ ApproachingIntersection::ApproachingIntersection(const Eigen::VectorXd &car, con
 {
 }
 
-bool ApproachingIntersection::Straight() {
-    setPlanningParam(-1.5, -1.5, -1.5, 0.5, 5);// 弯道处减速 
+bool ApproachingIntersection::Straight()
+{
+    setPlanningParam(-1.5, -1.5, -1.5, 0.5, 5); // 弯道处减速
     frentPoint FrentPoint_;
     int car_index_localpath;
-    senarioTools::findClosestPointInLocalPath(car_(0), car_(1),optTrajxy, car_index_localpath);
+    senarioTools::findClosestPointInLocalPath(car_(0), car_(1), optTrajxy, car_index_localpath);
     senarioTools::cartofrenet(car_, globalPath, indexinglobalpath_, FrentPoint_);
     Eigen::VectorXd vehicle_state_(6);
     vehicle_state_ << car_(0), car_(1), car_(2), car_(3), car_(4), gpsA_;
@@ -25,7 +26,8 @@ bool ApproachingIntersection::Straight() {
     LOCAL_.setPatam(gpsA_, speed, FrentPoint_.s, FrentPoint_.d, dl, ddl, globalPath, 30, 10, indexinglobalpath_, obses_limit_SD, GlobalcoordinatesystemObsesLimit,
                     start_l, end_l, delta_l, target_v, target_l, Decisionflags_, 0, false, false, 0, 0); // 最后一位时最近障碍物的位置
     find_local_path_ = LOCAL_.GetoptTrajxy(lastOptTrajxy, lastOptTrajsd);
-    if (find_local_path_) {
+    if (find_local_path_)
+    {
         UpdateLocalPath();
     }
     return find_local_path_;
@@ -49,9 +51,28 @@ void ApproachingIntersection::ReturnRightLane()
 
 void ApproachingIntersection::MakeDecision()
 {
+    RestFlags(true, false, false, false, false);
+    // 测试给出直行决策
 }
 
 bool ApproachingIntersection::Process()
 {
-    return false;
+    /*****************************判断是否需要重新规划路径************************************ */
+    CheckPathReplan();
+
+    if (REPALN)
+    {
+        if (Decisionflags_.DriveStraightLineFlag)
+            Straight();
+    }
+
+    /****************************判断是否找到路径******************************************* */
+    if (find_local_path_)
+    {
+        return true;
+    }
+    else
+    {
+        return false;
+    }
 }

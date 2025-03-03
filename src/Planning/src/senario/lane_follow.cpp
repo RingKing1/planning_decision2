@@ -59,7 +59,7 @@ bool LaneFollowScenario::AvoidObstacle() {
     }
     return find_local_path_;
 }
-void LaneFollowScenario::Overtake() {
+bool LaneFollowScenario::Overtake() {
     setPlanningParam(1.5, 1.0, 1.5, 0.5, 15);
     frentPoint FrentPoint_;
     int car_index_localpath;
@@ -136,7 +136,7 @@ bool LaneFollowScenario::DecelerateFollow()
 }
 
 
-void LaneFollowScenario::ReturnRightLane() {
+bool LaneFollowScenario::ReturnRightLane() {
     setPlanningParam(-1.0, -1.5, -1.5, 0.5, 10);
     frentPoint FrentPoint_;
     int car_index_localpath;
