@@ -12,10 +12,8 @@ public:
     Scenario(const Eigen::VectorXd &car, const Eigen::MatrixXd &globalPath,
              const std::vector<obses_sd> &obses_limit_SD,
              const std::vector<Eigen::VectorXd> &GlobalcoordinatesystemObsesLimit,
-             const double &gpsA,const double indexinglobalpath);
+             const double &gpsA, const double indexinglobalpath);
     virtual ~Scenario() = default;
-
-
 
     // 给出决策makedecision的函数
     virtual void MakeDecision() = 0;
@@ -27,34 +25,39 @@ public:
     double Time();
 
     // 重置决策flags
-    void RestFlags( bool DriveStraightLineFlag_,
-                    bool ObstacleAvoidanceFlag_,
-                    bool DecelerateFlag_,
-                    bool Overtakinginlaneflag_,
-                    bool righttoleftlane);
+    void RestFlags(bool DriveStraightLineFlag_,
+                   bool ObstacleAvoidanceFlag_,
+                   bool DecelerateFlag_,
+                   bool Overtakinginlaneflag_,
+                   bool righttoleftlane);
 
     // 获取本周期的局部路径optTrajxy
-    inline Eigen::MatrixXd getlocalpath() const { return optTrajxy;}
-    inline std::vector<Eigen::Vector4d> getlocalpathsd() const { return optTrajsd;}
+    inline Eigen::MatrixXd getlocalpath() const { return optTrajxy; }
+    inline std::vector<Eigen::Vector4d> getlocalpathsd() const { return optTrajsd; }
 
     // 更新本周期的局部路径optTrajxy
-    inline void setlocalpath(const Eigen::MatrixXd &localpath) { 
+    inline void setlocalpath(const Eigen::MatrixXd &localpath)
+    {
         optTrajxy.resize(localpath.rows(), localpath.cols());
-        optTrajxy = localpath;}
-    inline void setlocalpath(const std::vector<Eigen::Vector4d> &localpath) { optTrajsd = localpath;}
+        optTrajxy = localpath;
+    }
+    inline void setlocalpath(const std::vector<Eigen::Vector4d> &localpath) { optTrajsd = localpath; }
 
     void Updated(const Eigen::VectorXd &car, const std::vector<obses_sd> &obses_limit_SD_,
-        const std::vector<Eigen::VectorXd> &GlobalcoordinatesystemObsesLimit_,
-        const double &gpsA, const double indexinglobalpath);
+                 const std::vector<Eigen::VectorXd> &GlobalcoordinatesystemObsesLimit_,
+                 const double &gpsA, const double indexinglobalpath);
     void UpdateLocalPath();
+
+    // 判断路径是否需要重规划
+    void CheckPathReplan();
 
 protected:
     Decisionflags Decisionflags_;
-    local_dp_qp LOCAL_; 
-    Eigen::MatrixXd optTrajxy;                  // 本周期局部路径xy 
-    std::vector<Eigen::Vector4d> optTrajsd;     // 上周期局部路径sd 
+    local_dp_qp LOCAL_;
+    Eigen::MatrixXd optTrajxy;                  // 本周期局部路径xy
+    std::vector<Eigen::Vector4d> optTrajsd;     // 上周期局部路径sd
     Eigen::MatrixXd lastOptTrajxy;              // 本周期局部路径xy
-    std::vector<Eigen::Vector4d> lastOptTrajsd; // 本周期局部路径sd 
+    std::vector<Eigen::Vector4d> lastOptTrajsd; // 本周期局部路径sd
 
     // 存储当前车辆状态
     Eigen::VectorXd car_;
@@ -66,11 +69,19 @@ protected:
     std::vector<obses_sd> obses_limit_SD;
     std::vector<Eigen::VectorXd> GlobalcoordinatesystemObsesLimit;
     double gpsA_;
-    
 
     // 车辆在全局路径下的坐标点
     int indexinglobalpath_ = 0;
 
     // 是否找到合适的局部路径
     bool find_local_path_ = false;
+
+
+    // 车辆参数（全局固定常量）
+    static constexpr double vehicle_length_ = 4.532;
+    static constexpr double vehicle_width_ = 1.814;
+    std::vector<Eigen::MatrixXd> all_local_pointss;
+    bool REPALN = true;
+    int Numbercycles = 0;
+
 };

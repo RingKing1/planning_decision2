@@ -8,15 +8,13 @@ Scenario::Scenario(const Eigen::VectorXd &car,
                    const std::vector<obses_sd> &obses_limit_SD,
                    const std::vector<Eigen::VectorXd> &GlobalcoordinatesystemObsesLimit,
                    const double &gpsA, const double indexinglobalpath) : car_(car),
-                   globalPath(globalPath),
-                   obses_limit_SD(obses_limit_SD),
-                   GlobalcoordinatesystemObsesLimit(GlobalcoordinatesystemObsesLimit),
-                   gpsA_(gpsA),
-                   indexinglobalpath_(indexinglobalpath)
+                                                                         globalPath(globalPath),
+                                                                         obses_limit_SD(obses_limit_SD),
+                                                                         GlobalcoordinatesystemObsesLimit(GlobalcoordinatesystemObsesLimit),
+                                                                         gpsA_(gpsA),
+                                                                         indexinglobalpath_(indexinglobalpath)
 {
 }
-
-
 
 double Scenario::Time()
 {
@@ -33,16 +31,16 @@ double Scenario::Time()
 // bool Overtakinginlaneflag = false;  // 车道内超车的标志
 // bool righttoleftlane = false;       // 超车完成 返回原车道的标志
 void Scenario::RestFlags(bool DriveStraightLineFlag_,
-                    bool ObstacleAvoidanceFlag_,
-                    bool DecelerateFlag_,
-                    bool Overtakinginlaneflag_,
-                    bool righttoleftlane)
+                         bool ObstacleAvoidanceFlag_,
+                         bool DecelerateFlag_,
+                         bool Overtakinginlaneflag_,
+                         bool righttoleftlane)
 {
     Decisionflags_.DriveStraightLineFlag = DriveStraightLineFlag_; // 直行决策
     Decisionflags_.ObstacleAvoidanceFlag = ObstacleAvoidanceFlag_; // 避障决策
-    Decisionflags_.DecelerateFlag = DecelerateFlag_;        // 减速跟车决策
-    Decisionflags_.Overtakinginlaneflag = Overtakinginlaneflag_;  // 超车决策
-    Decisionflags_.righttoleftlane = righttoleftlane;       // 返回原车道决策
+    Decisionflags_.DecelerateFlag = DecelerateFlag_;               // 减速跟车决策
+    Decisionflags_.Overtakinginlaneflag = Overtakinginlaneflag_;   // 超车决策
+    Decisionflags_.righttoleftlane = righttoleftlane;              // 返回原车道决策
 }
 
 void Scenario::Updated(const Eigen::VectorXd &car, const std::vector<obses_sd> &obses_limit_SD_, const std::vector<Eigen::VectorXd> &GlobalcoordinatesystemObsesLimit_, const double &gpsA, const double indexinglobalpath)
@@ -59,4 +57,33 @@ void Scenario::UpdateLocalPath()
     optTrajxy.resize(lastOptTrajxy.rows(), lastOptTrajxy.cols());
     optTrajxy = lastOptTrajxy;
     optTrajsd = lastOptTrajsd;
+}
+
+void Scenario::CheckPathReplan()
+{
+    if (Numbercycles == 0)
+    {
+
+        all_local_pointss.clear();
+        // 重新计算时 才会清空
+        Eigen::MatrixXd car_Fpoint;
+        all_local_pointss.reserve(optTrajxy.cols());
+        for (size_t i = 0; i < optTrajxy.cols(); ++i)
+        {
+            obs::get_car_fourpoint(vehicle_length_, vehicle_width_, optTrajxy.col(i), car_Fpoint); // 由车辆的中心点 计算局部路径上的每个店对应的车辆的四个顶点
+            all_local_pointss.emplace_back(car_Fpoint);
+        }
+    }
+
+    // 判断是否超时，如果超时也需要重新规划
+    if (!obs::HasOverlap(all_local_pointss, GlobalcoordinatesystemObsesLimit, optTrajxy))
+    {
+        Numbercycles += 1;
+        REPALN = false;
+    }
+    if (Numbercycles > 10)
+    {
+        Numbercycles = 0;
+        REPALN = true;
+    }
 }

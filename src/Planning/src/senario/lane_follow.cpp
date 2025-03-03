@@ -22,7 +22,7 @@ bool LaneFollowScenario::Straight()
     target_v = 10;
     frentPoint FrentPoint_;
     int car_index_localpath;
-    senarioTools::findClosestPointInLocalPath(car_(0), car_(1),optTrajxy, car_index_localpath);
+    senarioTools::findClosestPointInLocalPath(car_(0), car_(1), optTrajxy, car_index_localpath);
     senarioTools::cartofrenet(car_, globalPath, indexinglobalpath_, FrentPoint_);
     Eigen::VectorXd vehicle_state_(6);
     vehicle_state_ << car_(0), car_(1), car_(2), car_(3), car_(4), gpsA_;
@@ -31,7 +31,7 @@ bool LaneFollowScenario::Straight()
     local_start_s = vehicle_state[0];
     local_start_l = vehicle_state[1];
     dl = vehicle_state[2];
-    ddl =vehicle_state[3];
+    ddl = vehicle_state[3];
     speed = vehicle_state[4];
     gpsA_ = vehicle_state[5];
     RestFlags(true, false, false, false, false);
@@ -55,7 +55,7 @@ bool LaneFollowScenario::AvoidObstacle()
     target_v = 10;
     frentPoint FrentPoint_;
     int car_index_localpath;
-    senarioTools::findClosestPointInLocalPath(car_(0), car_(1),optTrajxy, car_index_localpath);
+    senarioTools::findClosestPointInLocalPath(car_(0), car_(1), optTrajxy, car_index_localpath);
     senarioTools::cartofrenet(car_, globalPath, indexinglobalpath_, FrentPoint_);
     Eigen::VectorXd vehicle_state_(6);
     vehicle_state_ << car_(0), car_(1), car_(2), car_(3), car_(4), gpsA_;
@@ -64,7 +64,7 @@ bool LaneFollowScenario::AvoidObstacle()
     local_start_s = vehicle_state[0];
     local_start_l = vehicle_state[1];
     dl = vehicle_state[2];
-    ddl =vehicle_state[3];
+    ddl = vehicle_state[3];
     speed = vehicle_state[4];
     gpsA_ = vehicle_state[5];
     RestFlags(false, false, false, true, false);
@@ -93,9 +93,9 @@ bool LaneFollowScenario::DecelerateFollow()
     target_l = -1.5;
     delta_l = 0.5;
     target_v = 10;
-   frentPoint FrentPoint_;
+    frentPoint FrentPoint_;
     int car_index_localpath;
-    senarioTools::findClosestPointInLocalPath(car_(0), car_(1),optTrajxy, car_index_localpath);
+    senarioTools::findClosestPointInLocalPath(car_(0), car_(1), optTrajxy, car_index_localpath);
     senarioTools::cartofrenet(car_, globalPath, indexinglobalpath_, FrentPoint_);
     Eigen::VectorXd vehicle_state_(6);
     vehicle_state_ << car_(0), car_(1), car_(2), car_(3), car_(4), gpsA_;
@@ -104,7 +104,7 @@ bool LaneFollowScenario::DecelerateFollow()
     local_start_s = vehicle_state[0];
     local_start_l = vehicle_state[1];
     dl = vehicle_state[2];
-    ddl =vehicle_state[3];
+    ddl = vehicle_state[3];
     speed = vehicle_state[4];
     gpsA_ = vehicle_state[5];
     RestFlags(true, false, false, false, false);
@@ -159,9 +159,15 @@ void LaneFollowScenario::MakeDecision()
 
 bool LaneFollowScenario::Process()
 {
-    if (Decisionflags_.DriveStraightLineFlag)
-        Straight();
-        std::cout<<"find_local_path_: "<<find_local_path_<<std::endl;
+    /*****************************判断是否需要重新规划路径************************************ */
+    CheckPathReplan(); 
+
+    if (REPALN)
+    {
+        if (Decisionflags_.DriveStraightLineFlag)
+            Straight();
+    }
+
     /****************************判断是否找到路径******************************************* */
     if (find_local_path_)
     {

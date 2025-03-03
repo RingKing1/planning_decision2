@@ -109,7 +109,7 @@ private:
     /***************主执行函数********************/
     rclcpp::TimerBase::SharedPtr timer_getlocalpath_;
     // 系统每隔100ms执行一次局部路径生成主函数
-    int Slowdowntimethreshold = 1000;
+    int Slowdowntimethreshold = 100;
 
     /************************gps信号*****************************/
     double gpsx_ = 0.0;
